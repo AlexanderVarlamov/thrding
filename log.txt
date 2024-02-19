@@ -1,0 +1,5 @@
+MainProcess, MainThread, main, 2024-02-15 11:24:17,179
+MainProcess, MainThread, info message, 2024-02-15 11:24:17,179
+MainProcess, MainThread, warning message, 2024-02-15 11:24:17,179
+MainProcess, MainThread, error message, 2024-02-15 11:24:17,179
+MainProcess, MainThread, critical message, 2024-02-15 11:24:17,179
