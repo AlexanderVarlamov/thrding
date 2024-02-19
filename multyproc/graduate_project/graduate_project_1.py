@@ -143,6 +143,10 @@ if __name__ == '__main__':
         futures = [pool.submit(collect_prices, ticker) for ticker in ticker_list] + \
                   [pool.submit(get_dividend_dates, ticker) for ticker in ticker_list]
 
+    # for ticker in ticker_list:
+    #     collect_prices(ticker)
+    #     get_dividend_dates(ticker)
+
     concurrent.futures.wait(futures, timeout=5)
     ready_queue.put(None)
     file_writer.join()
