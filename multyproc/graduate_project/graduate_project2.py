@@ -1,13 +1,12 @@
 import bisect
 import csv
 import logging
-import multiprocessing
 import os
 import sys
 import time
 from collections import deque
 from datetime import datetime
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, get_logger
 
 from dateutil.relativedelta import relativedelta
 from matplotlib import pyplot as plt
@@ -16,7 +15,7 @@ ticker_list = ['SBER', 'LKOH', 'GAZP', 'ROSN', 'ALRS']
 start_invest_date = datetime(year=2014, month=7, day=1)
 last_invest_date = datetime(year=2024, month=2, day=1)
 
-logger = multiprocessing.get_logger()
+logger = get_logger()
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter(fmt="{asctime} {levelname} {processName} {threadName}  {message}", style='{')
 
