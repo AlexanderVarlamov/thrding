@@ -150,4 +150,4 @@ if __name__ == '__main__':
     concurrent.futures.wait(futures, timeout=5)
     ready_queue.put(None)
     file_writer.join()
-    logger.info(f"All done in {time.perf_counter() - start:.3f} second")
+    logger.info(f"All data received in {time.perf_counter() - start:.3f} second")
