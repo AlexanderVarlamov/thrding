@@ -1,10 +1,3 @@
-"""
-version 
-@author varlamov.a
-@email varlamov.a@rt.ru
-@date 20.02.2024
-@time 10:27
-"""
 import bisect
 import csv
 import logging
@@ -37,7 +30,7 @@ logger.addHandler(sh)
 
 
 class CountPrice(Process):
-    def __init__(self, ticker: str, investment_days: list[datetime], queue, per_month: int = 2000):
+    def __init__(self, ticker: str, investment_days: list[datetime], queue, per_month: int | float = 2000):
         super().__init__()
         self.ticker = ticker
         self.investment_days = deque(investment_days)
@@ -177,31 +170,70 @@ def generate_dates():
     return dates
 
 
-if __name__ == '__main__':
-    queue_results = Queue()
-    investment_days = generate_dates()
-    pr = CountPrice('AGRO', investment_days, queue_results)
-    pr.start()
+def total_investment_count(temp_queue: Queue, result_queue: Queue, num: int):
+    results = {}
+    already_processed = 0
+    start = time.perf_counter()
+    while already_processed < num:
+        temp_results = temp_queue.get()
+        for res in temp_results:
+            key = res[0]
+            if key in results:
+                value = results[key]
+                value += res[1]
+            else:
+                value = res[1]
+            results.update({key: value})
+        already_processed += 1
+
+    result_queue.put(list(results.items()))
+    logger.info(f"Данные по бирже посчитаны за {time.perf_counter() - start:.3f} секунд")
+
+
+def evaluate_bank_investment(investment_days, monthly_amount, percent=0.07):
     cur = 0
     money = []
-    for day in investment_days:
-        cur *= (0.07 / 12) + 1
-        cur += 2000
+    for _ in investment_days:
+        cur *= (percent / 12) + 1
+        cur += monthly_amount
         money.append(cur)
+
+    return money
+
+
+if __name__ == '__main__':
+    temp_queue = Queue()
+    result_queue = Queue()
+    investment_days = generate_dates()
+    size = len(ticker_list)
+    monthly_amount = 10000
+    percent = 0.07
+    processes = [CountPrice(ticker, investment_days, temp_queue, monthly_amount/size) for ticker in ticker_list]
+
+    for proc in processes:
+        proc.start()
+    logger.info("Расчёт по тикерам запущен")
+
+    res_proc = Process(target=total_investment_count, args=(temp_queue, result_queue, size))
+    res_proc.start()
 
     fig, ax = plt.subplots()
     ax.set_xlabel('Время')
-    ax.set_ylabel('Цена в условных единицах')
-    ax.set_title("Динамика цен на акции")
+    ax.set_ylabel('Цена портфеля, рубли')
+    ax.set_title(f"Сравнение банковских инвестиций под {percent*100:.1f}% и биржевых инвестиций")
     ax.grid(True)
 
-    X, Y = investment_days, money
+    X, Y = investment_days, evaluate_bank_investment(investment_days, monthly_amount, percent)
     ax.plot(X, Y)
 
-    ROSN = queue_results.get(timeout=4)
-    pr.join()
-    X1 = [x[0] for x in ROSN]
-    Y1 = [x[1] for x in ROSN]
+    stocks = result_queue.get(timeout=4)
+    res_proc.join()
+
+    for proc in processes:
+        proc.join()
+
+    X1 = [x[0] for x in stocks]
+    Y1 = [x[1] for x in stocks]
     ax.plot(X1, Y1)
 
     plt.show()
