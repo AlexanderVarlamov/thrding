@@ -12,7 +12,7 @@ from typing import List
 
 import requests
 
-ticker_list = ['SBER', 'LKOH', 'GAZP', 'ROSN', 'ALRS']
+ticker_list = ['SBER', 'LKOH', 'GAZP', 'ROSN', 'ALRS', 'AGRO', 'PHOR']
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
