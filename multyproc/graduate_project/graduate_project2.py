@@ -178,7 +178,7 @@ def total_investment_count(temp_queue: Queue, result_queue: Queue, num: int):
         temp_results = temp_queue.get()
         for res in temp_results:
             key = res[0]
-            if key := (res[0]) in results:
+            if key in results:
                 value = results[key]
                 value += res[1]
             else:
